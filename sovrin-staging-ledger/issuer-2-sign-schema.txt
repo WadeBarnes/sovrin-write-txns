@@ -1,6 +1,9 @@
 # Run this script after editing /tmp/dev_schema_1.txt
-pool connect local_pool
-load-plugin library=libindystrgpostgres.dylib initializer=postgresstorage_init
+# =======================================
+# WWJB - Do we even need to connect to the pool for these operations?
+# =======================================
+pool connect sandbox
+load-plugin library=libindystrgpostgres.so initializer=postgresstorage_init
 wallet open local_wallet key storage_credentials={"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}
 # manually enter key
 did use VePGZfzvcgmT3GTdYgpDiT
@@ -13,3 +16,4 @@ ledger sign-multi
 ledger save-transaction file=/tmp/dev_schema_2.txt
 # response "y" to save the transaction
 # this is sent to the endorser to sign and write to the other ledger
+exit

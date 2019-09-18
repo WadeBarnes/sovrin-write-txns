@@ -1,9 +1,12 @@
 # Run this script first - creates DIDs and a local wallet on a local ledger
 # Endorser seed is ENDORSER123450000000000000000000  which creates DID DFuDqCYpeDNXLuc3MKooX3
-pool create local_pool gen_txn_file=/Users/icostanzo/Projects/sovrin-write-txns/local_pool_transactions_genesis
-pool connect local_pool
-load-plugin library=libindystrgpostgres.dylib initializer=postgresstorage_init
-wallet import local_wallet key export_path=/tmp/myorg_init_wallet.export export_key storage_type=postgres_storage storage_config={"url":"localhost:5435"} storage_credentials={"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}
+# pool create local_pool gen_txn_file=./local_pool_transactions_genesis
+# =======================================
+# WWJB - Do we even need to connect to the pool for these operations?
+# =======================================
+pool connect sandbox
+load-plugin library=libindystrgpostgres.so initializer=postgresstorage_init
+wallet import local_wallet key export_path=/tmp/myorg_init_wallet.export export_key storage_type=postgres_storage storage_config={"url":"192.168.65.3:5435"} storage_credentials={"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}
 # manually enter key
 wallet open local_wallet key storage_credentials={"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}
 # manually enter key
@@ -11,8 +14,10 @@ wallet open local_wallet key storage_credentials={"account":"DB_USER","password"
 # Did "VePGZfzvcgmT3GTdYgpDiT" has been created with "~JDemkHrTixMBBdP1urLrxe" verkey
 did use VePGZfzvcgmT3GTdYgpDiT
 # by default use our local author DID
-ledger schema name=ian-permit.ian-co version=1.1.6 attr_names=corp_num,legal_name,permit_id,permit_type,permit_issued_date,permit_status,effective_date send=false sign=false
+ledger schema name=ian-permit.ian-co version=1.0.0 attr_names=corp_num,legal_name,permit_id,permit_type,permit_issued_date,permit_status,effective_date send=false sign=false
 # response "y" to save the transaction
 ledger save-transaction file=/tmp/dev_schema_1.txt
 # response "y" to save the transaction
 # manually edit the file to add ,"endorser":"DFuDqCYpeDNXLuc3MKooX3"
+did list
+exit

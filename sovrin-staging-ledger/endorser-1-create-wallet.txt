@@ -1,10 +1,15 @@
 # Run this script to create endorser wallet
 # Manually create any DID's that you need on the ledger
-pool create bcovrin_pool gen_txn_file=/Users/icostanzo/Projects/sovrin-write-txns/sandbox_sovrin_genesis.txt
-pool connect bcovrin_pool
+# pool create bcovrin_pool gen_txn_file=/Users/icostanzo/Projects/sovrin-write-txns/sandbox_sovrin_genesis.txt
+# =======================================
+# WWJB - Do we even need to connect to the pool for these operations?
+# =======================================
+pool connect sandbox
 wallet create bcovrin_wallet key
 # manually enter key
 wallet open bcovrin_wallet key
 # manually enter key
-did new seed=ENDORSER123450000000000000000000 
-# Did "AUPCKiiq1ema4fbkXYP2Kg" has been created with "~JWYNcvdrrLyDn48pMNUPaC" verkey
+did new seed=ENDORSER123450000000000000000000
+# Did "DFuDqCYpeDNXLuc3MKooX3" has been created with "~3iMs3sMicSkemByP9Jawft" verkey
+did list
+exit

@@ -52,7 +52,7 @@ from indy.error import ErrorCode, IndyError
 pool_name = 'local_pool'
 PROTOCOL_VERSION = 2
 
-wallet_config = json.dumps({"id": "local_wallet", "storage_type": "postgres_storage", "storage_config": {"url":"localhost:5435"}})
+wallet_config = json.dumps({"id": "local_wallet", "storage_type": "postgres_storage", "storage_config": {"url":"192.168.65.3:5435"}})
 wallet_credentials = json.dumps({"key": "key", "storage_credentials": {"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}})
 trust_anchor_did = 'VePGZfzvcgmT3GTdYgpDiT'
 
@@ -96,15 +96,15 @@ async def write_schema_and_cred_def():
         # 9.
         print_log('\n9. Build the SCHEMA request to add new schema to the ledger as a Steward\n')
         # get the seq # from the Sovrin schema transaction
-        seq_no = 70633
+        seq_no = 10
         schema = {
             'seqNo': seq_no,
             'dest': 'VePGZfzvcgmT3GTdYgpDiT',
             'data': {
-                'id': 'VePGZfzvcgmT3GTdYgpDiT:2:ian-permit.ian-co:1.1.6',
+                'id': 'VePGZfzvcgmT3GTdYgpDiT:2:ian-permit.ian-co:1.0.0',
                 'seqNo': seq_no,
                 'name': 'ian-permit.ian-co',
-                'version': '1.1.6',
+                'version': '1.0.0',
                 'ver': '1.0',
                 'attrNames': ['corp_num','legal_name','permit_id','permit_type','permit_issued_date','permit_status','effective_date']
             }
@@ -137,7 +137,7 @@ def main():
 
 if __name__ == '__main__':
     print("Loading postgres")
-    stg_lib = CDLL("libindystrgpostgres.dylib")
+    stg_lib = CDLL("libindystrgpostgres.so")
     result = stg_lib["postgresstorage_init"]()
     if result != 0:
         print("Error unable to load wallet storage", result)

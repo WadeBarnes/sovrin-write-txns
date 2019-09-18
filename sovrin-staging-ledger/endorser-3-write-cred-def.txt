@@ -1,5 +1,5 @@
 # Run this script after creating /tmp/dev_cred_def_2.txt
-pool connect bcovrin_pool
+pool connect sandbox
 wallet open bcovrin_wallet key
 # manually enter key
 did use DFuDqCYpeDNXLuc3MKooX3
@@ -11,3 +11,4 @@ ledger sign-multi
 # endorser signs transation
 ledger custom context
 # cred def is written to the ledger
+exit

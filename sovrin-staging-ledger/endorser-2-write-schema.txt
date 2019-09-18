@@ -1,5 +1,5 @@
 # Run this script after creating /tmp/dev_schema_2.txt
-pool connect bcovrin_pool
+pool connect sandbox
 wallet open bcovrin_wallet key
 # manually enter key
 # sign with the endorser DID
@@ -13,5 +13,6 @@ ledger sign-multi
 # response "y" to sign the current transaction in context
 ledger custom context
 # saves to ledger
-ledger get-schema did=VePGZfzvcgmT3GTdYgpDiT name=ian-permit.ian-co version=1.1.6
+ledger get-schema did=VePGZfzvcgmT3GTdYgpDiT name=ian-permit.ian-co version=1.0.0
 # get schema from ledger to get version #, etc
+exit
