@@ -31,7 +31,7 @@ Note that this requires a DID on the Sovrin network
 Note that this will fail because the DID doesn't have privileges to write to the Sovrin network
 
 
-3. Export the agent's wallet - it will contain a VON-compatible DID with metadata
+3. Optional/Recommened - Export the agent's wallet - it will contain a VON-compatible DID with metadata
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-0-export-wallet.txt
@@ -42,17 +42,17 @@ Note there will be nothing else in the wallet
 Note leave the OrgBook and VON Agent services running, we will be using the wallet database
 
 
-4. Run a set of local Indy nodes (this is in the Indy SDK):
+4. Optional/Recommened - Import a working copy of the wallet
 
 ```
-docker run -itd -p 9701-9708:9701-9708 indy_pool
+indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-1-import-wallet-working-copy.txt
 ```
 
 
-5. Initialize a temporary (local) wallet for building the new cred def
+5. Write the (author signed) schema to a file so it can be later signed by the (intended) endorser and written to the ledger.
 
 ```
-indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-1-create-wallet.txt
+indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-2-create-signed-schema.txt
 ```
 
 
@@ -60,16 +60,6 @@ indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-1-create-wall
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/endorser-1-create-wallet.txt
-```
-
-
-7. Edit the saved transaction in `/tmp/dev_schema_1.txt` to add `,"endorser":"DFuDqCYpeDNXLuc3MKooX3"`
-
-
-8. Sign the transaction with your issuer:
-
-```
-indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-2-sign-schema.txt
 ```
 
 
@@ -200,90 +190,6 @@ myorg-agent_1      | 2019-09-12 01:03:28,367 INFO [vonx.indy.service]: Indy agen
 myorg-agent_1      | 2019-09-12 01:03:28,368 WARNING [vonx.indy.tob]: No file found at logo path: ../config/../assets/img/ian-co-logo.jpg
 myorg-agent_1      | 2019-09-12 01:03:30,154 INFO [vonx.common.service]: Starting sync: indy
 ```
-
-
-## Using a local ledger (Issuer) and BCovrin Dev ledger (Endorser)
-
-Local ledger is started as per sdk instructions https://github.com/hyperledger/indy-sdk#1-starting-the-test-pool-on-localhost
-
-BCovrin Dev is http://dev.bcovrin.vonx.io/
-
-1. Manually create any necessary DID’s on BCovrin Dev
-   (use VON ledger browser)
-
-   Note that DID's are created manually via the ledger browser, see http://dev.bcovrin.vonx.io/browse/domain?page=89
-
-2. Create local wallet with DID’s (for issuer local ledger)
-
-```
-indy-cli local-ledger/issuer-1-create-wallet.txt
-```
-
-3. Create local wallet with DID’s (for endorser BCovrin Dev ledger)
-
-```
-indy-cli bcovrin-ledger/endorser-1-create-wallet.txt
-```
-
-4. Manually edit schema to add endorser `,"endorser":"AUPCKiiq1ema4fbkXYP2Kg"`
-
-```
-vi /tmp/dev_schema_1.txt
-```
-
-5. Run script to sign schema txn (issuer local ledger)
-
-```
-indy-cli issuer-2-sign-schema.txt
-```
-
-6. Run script to write schema to ledger (endorser BCovrin Dev ledger)
-
-```
-indy-cli endorser-2-write-schema.txt
-```
-
-7. Make a note of the schema version
-
-8. TODO how to generate cred def public key
-
-9. Run script to create cred def transaction (issuer local ledger)
-
-```
-indy-cli issuer-3-create-cred-def.txt
-```
-
-10. Run script to write cred def to ledger (endorser BCovrin Dev ledger)
-
-```
-indy-cli endorser-3-write-cred-def.txt
-```
-
-
-## Both Issuer and Endorser using BCovrin Dev ledger
-
-BCovrin Dev is http://dev.bcovrin.vonx.io/
-
-1. Manually create any necessary DID’s on BCovrin Dev
-   (use VON ledger browser)
-
-   Note that DID's are created manually via the ledger browser, see http://dev.bcovrin.vonx.io/browse/domain?page=89
-
-2. Run script to create Issuer wallet (on BCovrin Dev ledger)
-
-```
-indy-cli bcovrin-ledger/issuer-1-create-wallet.txt
-```
-
-3. Etc ... just use the same scripts from the `local` section
-
-   i.e. `local_pool` is now pointing to `bcovin_pool`
-
-
-## Both Issuer and Endorser using local Indy ledger
-
-As above, but use the `create-wallet` scripts in the `local-ledger` folder
-
 
 ## Cleanup local environment
 

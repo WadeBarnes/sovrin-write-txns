@@ -1,0 +1,13 @@
+# ===================================================================================
+# Import a Working Copy of the Wallet
+# -----------------------------------------------------------------------------------
+# ===================================================================================
+
+load-plugin library=libindystrgpostgres.so initializer=postgresstorage_init
+
+wallet import local_wallet key export_path=/tmp/myorg_init_wallet.export export_key storage_type=postgres_storage storage_config={"url":"192.168.65.3:5435"} storage_credentials={"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}
+# manually enter key
+wallet open local_wallet key storage_credentials={"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}
+# manually enter key
+did list
+exit
