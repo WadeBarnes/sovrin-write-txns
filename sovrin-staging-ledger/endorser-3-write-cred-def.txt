@@ -5,7 +5,7 @@ wallet open bcovrin_wallet key
 did use DFuDqCYpeDNXLuc3MKooX3
 # use endorser DID
 # transaction gets signed
-ledger load-transaction file=/tmp/dev_cred_def_2.txt
+ledger load-transaction file=/tmp/dev_cred_def_signed.txt
 # response "y" to load the transaction
 ledger sign-multi
 # endorser signs transation

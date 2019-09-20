@@ -103,22 +103,11 @@ Make a note of the `primary` produced by this script, copy and paste it into an 
 12. Edit `issuer-3-create-cred-def.txt` to include the primary from the above step
 
 
-13. Now run it - signs the transaction and sends to the endorser
+13. Write the (author signed) cred def to a file so it can be later signed by the (intended) endorser and written to the ledger.
 
 ```
-indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-3-create-cred-def.txt
+indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-3-create-signed-cred-def.txt
 ```
-
-
-13a. As above, edit the saved transaction in `/tmp/dev_cred_def_1.txt` to add `,"endorser":"DFuDqCYpeDNXLuc3MKooX3"`
-
-
-13b. Run the following to sign the transaction:
-
-```
-indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-3-sign-cred-def.txt
-```
-
 
 14. Endorser signs and writes to the ledger
 
