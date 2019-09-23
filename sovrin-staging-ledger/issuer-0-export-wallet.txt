@@ -1,7 +1,6 @@
 # ===================================================================================
 # Export Wallet
-#   - Optional Step ?
-#   - Recommended Step?
+#   - Optional/Recommended Step
 # -----------------------------------------------------------------------------------
 # Exports a wallet to a file.
 # - The exported data is encrypted using a key.

@@ -1,6 +1,26 @@
 # ===================================================================================
 # Import a Working Copy of the Wallet
+#   - Optional/Recommended Step
 # -----------------------------------------------------------------------------------
+# Exports a wallet to a file.
+# - The exported data is encrypted using a key.
+#
+# Params:
+# walletName:
+#   - The name for the working cop of the wallet.
+#   - Currently hard coded to 'local_wallet'
+#
+# storageType:
+#   - Currently hard coded to 'postgres_storage'
+#
+# storageConfig:
+#   - Currently hard coded to '{"url":"192.168.65.3:5435"}'
+#
+# storageCredentials:
+#   - Currently hard coded to '{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}'
+# 
+# importPath:
+#   - Currently hard coded to '/tmp/myorg_init_wallet.export'
 # ===================================================================================
 
 load-plugin library=libindystrgpostgres.so initializer=postgresstorage_init
