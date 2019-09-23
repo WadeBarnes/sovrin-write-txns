@@ -8,13 +8,12 @@ You can see this process in action here:  https://zoom.us/recording/play/D8WVfMh
 
 Indy-cli scripts are all in https://github.com/ianco/sovrin-write-txns
 
-Note that all indy-cli scripts leave you logged into the CLI when they are done (in case you want to do some more queries).  To get back to a command prompt enter `exit`.
+**Note:** You have to manually enter wallet passwords at every step (create, open, export and import).
 
-Note also you have to manually enter wallet passwords at every step (create, open, export and import).
+## Start up the applications
 
 
 1. Run OrgBook with Sovrin connection parameters (note no local von-network requried):
-
 ```
 GENESIS_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis AUTO_REGISTER_DID=false LEDGER_URL=https://foo.com ./manage start seed=0000000000000o_anon_research_inc
 ```
@@ -26,44 +25,45 @@ GENESIS_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/so
 ./manage start
 ```
 
-Note that this requires a DID on the Sovrin network
+**Note:** This requires a DID on the Sovrin network
 
-Note that this will fail because the DID doesn't have privileges to write to the Sovrin network
+**Note:** This will fail because the DID doesn't have privileges to write to the Sovrin network
 
+**Note:** Leave the OrgBook and VON Agent services running, we will be using the wallet database
 
-3. Optional/Recommened - Export the agent's wallet - it will contain a VON-compatible DID with metadata
+## Create and Write the Schema and Cred Def to the Ledger
+
+1. Optional/Recommened - Export the agent's wallet - it will contain a VON-compatible DID with metadata
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-0-export-wallet.txt
 ```
 
-Note there will be nothing else in the wallet
-
-Note leave the OrgBook and VON Agent services running, we will be using the wallet database
+**Note:** There will be nothing else in the wallet other than a DID at this point.
 
 
-4. Optional/Recommened - Import a working copy of the wallet
+2. Optional/Recommened - Import a working copy of the wallet
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-1-import-wallet-working-copy.txt
 ```
 
 
-5. Write the (author signed) schema to a file so it can be later signed by the (intended) endorser and written to the ledger.
+3. Write the (author signed) schema to a file so it can be later signed by the (intended) endorser and written to the ledger.
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-2-create-signed-schema.txt
 ```
 
 
-6. Initialize an endorser wallet
+4. Initialize an endorser wallet
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/endorser-1-create-wallet.txt
 ```
 
 
-9. Sign the transaction with your endorser and write to the ledger:
+5. Sign the transaction with your endorser and write to the ledger:
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/endorser-2-write-schema.txt
@@ -88,10 +88,10 @@ Data:
 ```
 
 
-10. Edit scripts to include the above Sequence Number = `cred_def.py` and `issuer-3-create-cred-def.txt`
+6. Edit scripts to include the above Sequence Number = `cred_def.py` and `issuer-3-create-cred-def.txt`
 
 
-11. Create the cred def in our local wallet:
+7. Create the cred def in our local wallet:
 
 ```
 python3 cred_def.py
@@ -100,54 +100,48 @@ python3 cred_def.py
 Make a note of the `primary` produced by this script, copy and paste it into an editor, and edit to remove all spaces, line feeds etc
 
 
-12. Edit `issuer-3-create-cred-def.txt` to include the primary from the above step
+8. Edit `issuer-3-create-cred-def.txt` to include the primary from the above step
 
 
-13. Write the (author signed) cred def to a file so it can be later signed by the (intended) endorser and written to the ledger.
+9. Write the (author signed) cred def to a file so it can be later signed by the (intended) endorser and written to the ledger.
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-3-create-signed-cred-def.txt
 ```
 
-14. Endorser signs and writes to the ledger
+10. Endorser signs and writes to the ledger
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/endorser-3-write-cred-def.txt
 ```
 
 
-15. Export our "temporary wallet"
+11. Export our "temporary wallet"
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-4-export-wallet.txt
 ```
 
+## Restart the Agent with the New Wallet
 
-16. Kill all the OrgBook and VON Agent processes (`./manage rm`),a nd also kill the local ledger (`docker ps -a -q | xargs docker rm -f`)
-
-
-17. Startup OrgBook again:
-
-```
-GENESIS_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/sovrin/pool_transactions_sandbox_genesis AUTO_REGISTER_DID=false LEDGER_URL=https://foo.com ./manage start seed=0000000000000o_anon_research_inc
-```
+1. Kill the VON Agent processes (`./manage rm`)
 
 
-18. Startup *only* the Agent Wallet Database (so we can import our temporary wallet):
+2. Startup *only* the Agent Wallet Database (so we can import our temporary wallet):
 
 ```
 ./manage start myorg-wallet-db
 ```
 
 
-19. Now run the script to import our database:
+3. Now run the script to import our database:
 
 ```
 indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-5-import-wallet.txt
 ```
 
 
-20. Last step!  Stop the wallet database and start all Agent processes:
+4. Last step!  Stop the wallet database and start all Agent processes:
 
 ```
 ./manage stop
@@ -190,4 +184,3 @@ rm -rf ~/.indy*
 ```
 
 ... and also restart local Indy ledger
-
