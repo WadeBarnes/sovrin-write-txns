@@ -1,14 +1,35 @@
 # sovrin-write-txns
-Test of preparing transactions to write to sovrin network
+Test for preparing transactions to write to sovrin network
 
 
 ## Starting von-agent-template on the Sovrin Staging network with un-privileged DID's
 
-You can see this process in action here:  https://zoom.us/recording/play/D8WVfMhYakL19PYXoxTBQgBfYMH8bQO372fC75zTJplAycBSj7sTE-fmQy--RFU4?continueMode=true
+You can see the original this process in action here:  https://zoom.us/recording/play/D8WVfMhYakL19PYXoxTBQgBfYMH8bQO372fC75zTJplAycBSj7sTE-fmQy--RFU4?continueMode=true
 
 Indy-cli scripts are all in https://github.com/ianco/sovrin-write-txns
 
 **Note:** You have to manually enter wallet passwords at every step (create, open, export and import).
+
+## Prerequists
+
+The following process uses the Indy-CLI container from [von-network](https://github.com/bcgov/von-network) which provides a containerized `indy-cli` environemnts and facilities to mount a volume containing `indy-cli` batch script templates and perform variable substitution on those templates, turning them into reusable scripts.
+
+TODO: Referance a von-network indy-cli section for details.
+
+Register DIDs:
+- TOB
+- Agent, with no role.
+- Endorser seed is ENDORSER123450000000000000000000 which creates DID DFuDqCYpeDNXLuc3MKooX3
+
+Reset your Indy-CLI container's environemnt:
+```
+./manage cli reset
+```
+
+Initialize the pool for your Indy-CLI container's environemnt:
+```
+./manage cli init-pool localpool http://192.168.65.3:9000/genesis
+```
 
 ## Start up the applications
 
@@ -33,58 +54,89 @@ GENESIS_URL=https://raw.githubusercontent.com/sovrin-foundation/sovrin/master/so
 
 ## Create and Write the Schema and Cred Def to the Ledger
 
+_In the following examples the scripts:_
+- Commands are run in your `von-network` directory, as we are using the Indy-CLI container.
+- `/c/sovrin-write-txns` is the abosulte path to the scripts contained in this repository.
+- The examples are using a local docker environment so some services are being accessed via the DOCKERHOST IP address (192.168.65.3 in these examples).
+
 1. Optional/Recommened - Export the agent's wallet - it will contain a VON-compatible DID with metadata
 
 ```
-indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-0-export-wallet.txt
+./manage \
+  -v /c/sovrin-write-txns \
+  indy-cli export-wallet \
+  walletName=myorg_issuer \
+  storageType=postgres_storage \
+  storageConfig='{"url":"192.168.65.3:5435"}' \
+  storageCredentials='{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}' \
+  exportPath=/tmp/myorg_issuer_only_did.export
 ```
-
 **Note:** There will be nothing else in the wallet other than a DID at this point.
 
 
 2. Optional/Recommened - Import a working copy of the wallet
 
 ```
-indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-1-import-wallet-working-copy.txt
+./manage \
+  -v /c/sovrin-write-txns \
+  indy-cli import-wallet \
+  walletName=local_wallet \
+  storageType=postgres_storage \
+  storageConfig='{"url":"192.168.65.3:5435"}' \
+  storageCredentials='{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}' \
+  importPath=/tmp/myorg_issuer_only_did.export
 ```
 
 
 3. Write the (author signed) schema to a file so it can be later signed by the (intended) endorser and written to the ledger.
 
 ```
-indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/issuer-2-create-signed-schema.txt
-```
+./manage \
+  -v /c/sovrin-write-txns \
+  indy-cli create-signed-schema \
+  walletName=myorg_issuer \
+  storageType=postgres_storage \
+  storageConfig='{"url":"192.168.65.3:5435"}' \
+  storageCredentials='{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}' \
+  poolName=localpool \
+  authorDid=VePGZfzvcgmT3GTdYgpDiT \
+  endorserDid=DFuDqCYpeDNXLuc3MKooX3 \
+  schemaName=ian-permit.ian-co \
+  schemaVersion=1.0.0 \
+  schemaAttributes=corp_num,legal_name,permit_id,permit_type,permit_issued_date,permit_status,effective_date \
+  outputFile=/tmp/dev_schema_signed.txt
+  ```
 
 
 4. Initialize an endorser wallet
 
 ```
-indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/endorser-1-create-wallet.txt
+./manage \
+  -v /c/sovrin-write-txns \
+  indy-cli create-local-wallet \
+  walletName=endorser_wallet \
+  walletSeed=ENDORSER123450000000000000000000
 ```
 
 
 5. Sign the transaction with your endorser and write to the ledger:
 
 ```
-indy-cli ~/Projects/sovrin-write-txns/sovrin-staging-ledger/endorser-2-write-schema.txt
+./manage \
+  -v /c/sovrin-write-txns \
+  indy-cli write-signed-transaction \
+  walletName=endorser_wallet \
+  poolName=localpool \
+  authorDid=VePGZfzvcgmT3GTdYgpDiT \
+  endorserDid=DFuDqCYpeDNXLuc3MKooX3 \
+  inputFile=/tmp/dev_schema_signed.txt
 ```
 
-Make a note of the `Sequence Number`, you will need it later
+Make a note of the `seqNo`, you will need it later
 
 ```
-Following Schema has been received.
-Metadata:
-+------------------------+-----------------+---------------------+---------------------+
-| Identifier             | Sequence Number | Request ID          | Transaction time    |
-+------------------------+-----------------+---------------------+---------------------+
-| DFuDqCYpeDNXLuc3MKooX3 | 70371           | 1568249112025424000 | 2019-09-12 00:45:09 |
-+------------------------+-----------------+---------------------+---------------------+
-Data:
-+-------------------+---------+---------------------------------------------------------------------------------------------------------+
-| Name              | Version | Attributes                                                                                              |
-+-------------------+---------+---------------------------------------------------------------------------------------------------------+
-| ian-permit.ian-co | 1.0.7   | "permit_id","permit_type","permit_issued_date","permit_status","effective_date","legal_name","corp_num" |
-+-------------------+---------+---------------------------------------------------------------------------------------------------------+
+Response:
+{"result":{"auditPath":["6hokYVzPdjWCMk1wBLv1EHEEM4r3tD74yAPS7aECTFES","42T88rYvNWBh83QUkvNHUVfHUikWCBWh1zmP5AUUJLZ3"],"reqSignature":{"values":[{"value":"4UTrHUaZqZYwN7jkitB1n6wcyMo6CApE7BouLxS7rdrUJiWT8KM9FkXBUeTmTaoYwegupVmY8TUqcNFYRdjJPaf7","from":"DFuDqCYpeDNXLuc3MKooX3"},{"value":"nrGatoL1VjKvpLV4EBvGkrqPMiSTeJ4A7QeykjTAmb34CtE4VG32ddT8KGAszdoko659E7XRwy38jC42cJPPAPN","from":"VePGZfzvcgmT3GTdYgpDiT"}],"type":"ED25519"},"rootHash":"DSsBgS5T6WPMiC3AxnzAsywDaHzVH2ptvezwNweQHF1v","txn":{"protocolVersion":2,"metadata":{"digest":"39c2efb17b75edda9b6da5e7939131bbcc1cc86671bb5d4e9dc6b940c39e61e6","payloadDigest":"397051e80fca9b81a77adae5e08e59fa784bdc16dc11b788d9d421ac8b0205e4","endorser":"DFuDqCYpeDNXLuc3MKooX3","from":"VePGZfzvcgmT3GTdYgpDiT","reqId":1569428405919642000},"data":{"data":{"name":"ian-permit.ian-co","attr_names":["legal_name","permit_type","permit_status","effective_date","permit_id","permit_issued_date","corp_num"],"version":"1.0.0"}},"type":"101"},"ver":"1","txnMetadata":{"txnTime":1569438675,"seqNo":10,"txnId":"VePGZfzvcgmT3GTdYgpDiT:2:ian-permit.ian-co:1.0.0"}},"op":"REPLY"}
 ```
 
 
