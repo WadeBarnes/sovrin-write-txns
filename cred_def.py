@@ -40,7 +40,8 @@ This script returns:
                        'z': '47107036540803311469435904351406772134330713253387217487860154283622977007467454258519685096545379994908750889467439958454982798929251155494690304601387525503696682822022729189520351495627997108947442055176478587213869104400238227223946797194814057365368583932995967095555966182151943614690693513901167896619168429109522378359328460889950835611914690332686684663213810934909998666094622585987936453973281713802447375961016451674180164951212112576812042153386412793986139385065180612574606273328511899790711670508882466261670565204415908876341282665166564296557762007159015012163706719247955095314823816627774810936820'}},
  'ver': '1.0'}
 """
-
+import os
+import string
 import asyncio
 import json
 import pprint
@@ -49,12 +50,23 @@ from ctypes import *
 from indy import pool, ledger, wallet, did, anoncreds
 from indy.error import ErrorCode, IndyError
 
-pool_name = 'local_pool'
+pool_name = os.getenv('poolName', 'local_pool')
 PROTOCOL_VERSION = 2
 
-wallet_config = json.dumps({"id": "local_wallet", "storage_type": "postgres_storage", "storage_config": {"url":"192.168.65.3:5435"}})
-wallet_credentials = json.dumps({"key": "key", "storage_credentials": {"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}})
-trust_anchor_did = 'VePGZfzvcgmT3GTdYgpDiT'
+wallet_name = os.getenv('walletName', 'local_wallet')
+wallet_storage_type = os.getenv('storageType', 'postgres_storage')
+wallet_storage_config = json.loads(os.getenv('storageConfig', '{"url":"localhost:5435"}'))
+wallet_storage_credentials = json.loads(os.getenv('storageCredentials', '{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}'))
+wallet_key = os.getenv('walletKey', 'key')
+
+wallet_config = json.dumps({"id": wallet_name, "storage_type": wallet_storage_type, "storage_config": wallet_storage_config})
+wallet_credentials = json.dumps({"key": wallet_key, "storage_credentials": wallet_storage_credentials})
+
+author_did = os.getenv('authorDid', 'VePGZfzvcgmT3GTdYgpDiT')
+seq_no = os.getenv('schemaId', 10)
+schema_name = os.getenv('schemaName', 'ian-permit.ian-co')
+schema_version = os.getenv('schemaVersion', '1.0.0')
+schema_attributes = os.getenv('schemaName', "'corp_num','legal_name','permit_id','permit_type','permit_issued_date','permit_status','effective_date'")
 
 def print_log(value_color="", value_noncolor=""):
     """set the colors for text."""
@@ -64,27 +76,13 @@ def print_log(value_color="", value_noncolor=""):
 
 async def write_schema_and_cred_def():
     try:
-
-        '''# 2.
-        print_log('\n2. Open pool ledger and get handle from libindy\n')
-        pool_handle = await pool.open_pool_ledger(config_name=pool_name, config=None)" 
-        '''
-
         pool_ = {
-            'name': 'pool1'
+            'name': pool_name
         }
         print_log("Open Pool Ledger: {}".format(pool_['name']))
-        pool_['genesis_txn_path'] = "./sandbox_sovrin_genesis.txt"
-        pool_['config'] = json.dumps({"genesis_txn": str(pool_['genesis_txn_path'])})
 
         # Set protocol version 2 to work with Indy Node 1.4
         await pool.set_protocol_version(PROTOCOL_VERSION)
-
-        try:
-            await pool.create_pool_ledger_config(pool_['name'], pool_['config'])
-        except IndyError as ex:
-            if ex.error_code == ErrorCode.PoolLedgerConfigAlreadyExistsError:
-                pass
         pool_['handle'] = await pool.open_pool_ledger(pool_['name'], None)
 
         # 4.
@@ -96,17 +94,16 @@ async def write_schema_and_cred_def():
         # 9.
         print_log('\n9. Build the SCHEMA request to add new schema to the ledger as a Steward\n')
         # get the seq # from the Sovrin schema transaction
-        seq_no = 10
         schema = {
             'seqNo': seq_no,
-            'dest': 'VePGZfzvcgmT3GTdYgpDiT',
+            'dest': author_did,
             'data': {
-                'id': 'VePGZfzvcgmT3GTdYgpDiT:2:ian-permit.ian-co:1.0.0',
+                'id': author_did + ':2:' + schema_name + ':' + schema_version,
                 'seqNo': seq_no,
-                'name': 'ian-permit.ian-co',
-                'version': '1.0.0',
+                'name': schema_name,
+                'version': schema_version,
                 'ver': '1.0',
-                'attrNames': ['corp_num','legal_name','permit_id','permit_type','permit_issued_date','permit_status','effective_date']
+                'attrNames': [schema_attributes]
             }
         }
         schema_data = schema['data']
@@ -118,14 +115,15 @@ async def write_schema_and_cred_def():
         cred_def_config = json.dumps({"support_revocation": False})
 
         (cred_def_id, cred_def_json) = await anoncreds.issuer_create_and_store_credential_def(
-                        wallet_handle, trust_anchor_did, json.dumps(schema_data),
+                        wallet_handle, author_did, json.dumps(schema_data),
                         cred_def_tag, cred_def_type, cred_def_config)
+
         print_log('Credential definition: ')
         cred_def = json.loads(cred_def_json)
         pprint.pprint(cred_def)
-        print_log('Cred def primary: ')
+        print_log('\nCred def primary: ')
         cred_def_primary = cred_def['value']['primary']
-        print(json.dumps(cred_def_primary))
+        print(json.dumps(cred_def_primary).translate({ord(c): None for c in string.whitespace}))
 
     except IndyError as e:
         print('Error occurred: %s' % e)
