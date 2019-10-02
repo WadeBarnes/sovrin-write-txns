@@ -19,7 +19,22 @@
 # walletName:
 #   - The name of the wallet to be used for the operation.  Typically the endorser's wallet.
 #   - Example; endorser_wallet
-# 
+#
+# storageType:
+#   - The wallet storage type.
+#   - Remote Wallet Example; postgres_storage
+#   - Local Wallet Example; default
+#
+# storageConfig:
+#   - The wallet storage configuration.
+#   - Remote Wallet Example; '{"url":"192.168.65.3:5435"}'
+#   - Local Wallet Example; '{}'
+#
+# storageCredentials:
+#   - The wallet storage credentials.
+#   - Remote Wallet Example; '{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}'
+#   - Local Wallet Example; '{}'
+#
 # poolName:
 #   - The name of the ledger pool to use during the operations.
 #   - The transaction will be written to the ledger.
@@ -42,8 +57,8 @@ load-plugin library=libindystrgpostgres.so initializer=postgresstorage_init
 
 pool connect ${poolName}
 
-wallet attach ${walletName}
-wallet open ${walletName} key
+wallet attach ${walletName} storage_type=${storageType} storage_config=${storageConfig}
+wallet open ${walletName} key storage_credentials=${storageCredentials}
 did use ${endorserDid}
 ledger get-nym did=${endorserDid}
 ledger get-nym did=${authorDid}

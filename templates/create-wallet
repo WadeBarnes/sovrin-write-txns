@@ -1,14 +1,13 @@
 # ===================================================================================
-# Export Wallet
+# Create remote wallet
 # -----------------------------------------------------------------------------------
-# Exports a wallet to a file.
-# - The exported data is encrypted using a user supplied key.
+# Creates a remote wallet and initializes it with a DID.
 #
 # Params:
 # walletName:
-#   - The name of the wallet to be exported.
-#   - Example; myorg_issuer
-#
+#   - The name of the wallet to be imported.
+#   - Example; endorser_wallet
+# 
 # storageType:
 #   - The wallet storage type.
 #   - Remote Wallet Example; postgres_storage
@@ -23,17 +22,18 @@
 #   - The wallet storage credentials.
 #   - Remote Wallet Example; '{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}'
 #   - Local Wallet Example; '{}'
-# 
-# exportPath:
-#   - The path for the exported file.
-#   - Example; /tmp/myorg_issuer_only_did.export
+#
+# walletSeed:
+#   - The seed to use for initializing the wallet.
+#   - Example; ENDORSER123450000000000000000000
 # ===================================================================================
 
 load-plugin library=libindystrgpostgres.so initializer=postgresstorage_init
 
-wallet attach ${walletName} storage_type=${storageType} storage_config=${storageConfig}
+wallet create ${walletName} key storage_type=${storageType} storage_config=${storageConfig} storage_credentials=${storageCredentials}
 wallet open ${walletName} key storage_credentials=${storageCredentials}
-wallet export export_path=${exportPath} export_key
+did new seed=${walletSeed}
+did list
 wallet close
 wallet detach ${walletName}
 exit

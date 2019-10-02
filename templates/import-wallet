@@ -10,15 +10,18 @@
 #
 # storageType:
 #   - The wallet storage type.
-#   - Example; postgres_storage
+#   - Remote Wallet Example; postgres_storage
+#   - Local Wallet Example; default
 #
 # storageConfig:
 #   - The wallet storage configuration.
-#   - Example; '{"url":"192.168.65.3:5435"}'
+#   - Remote Wallet Example; '{"url":"192.168.65.3:5435"}'
+#   - Local Wallet Example; '{}'
 #
 # storageCredentials:
 #   - The wallet storage credentials.
-#   - Example; '{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}'
+#   - Remote Wallet Example; '{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}'
+#   - Local Wallet Example; '{}'
 # 
 # importPath:
 #   - The path for the exported file.
