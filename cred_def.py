@@ -66,7 +66,7 @@ author_did = os.getenv('authorDid', 'VePGZfzvcgmT3GTdYgpDiT')
 seq_no = os.getenv('schemaId', 10)
 schema_name = os.getenv('schemaName', 'ian-permit.ian-co')
 schema_version = os.getenv('schemaVersion', '1.0.0')
-schema_attributes = os.getenv('schemaName', "'corp_num','legal_name','permit_id','permit_type','permit_issued_date','permit_status','effective_date'")
+schema_attributes = os.getenv('schemaAttributes', "'corp_num','legal_name','permit_id','permit_type','permit_issued_date','permit_status','effective_date'")
 
 def print_log(value_color="", value_noncolor=""):
     """set the colors for text."""
@@ -91,6 +91,8 @@ async def write_schema_and_cred_def():
         print(wallet_credentials)
         wallet_handle = await wallet.open_wallet(wallet_config, wallet_credentials)
 
+        print(wallet_handle)
+
         # 9.
         print_log('\n9. Build the SCHEMA request to add new schema to the ledger as a Steward\n')
         # get the seq # from the Sovrin schema transaction
@@ -107,6 +109,7 @@ async def write_schema_and_cred_def():
             }
         }
         schema_data = schema['data']
+        print(schema)
 
         # 11.
         print_log('\n11. Creating and storing CRED DEFINITION using anoncreds as Trust Anchor, for the given Schema\n')

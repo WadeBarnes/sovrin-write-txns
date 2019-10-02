@@ -170,6 +170,23 @@ Use the value of the `seqNo` you noted in the previous step as the value for `sc
   schemaVersion=1.0.0 \
   schemaAttributes=corp_num,legal_name,permit_id,permit_type,permit_issued_date,permit_status,effective_date \
   python sovrin-write-txns/cred_def.py
+
+
+./manage \
+  -v /c/sovrin-write-txns/ \
+  cli \
+  walletName=myorg_issuer \
+  storageType=postgres_storage \
+  storageConfig='{"url":"192.168.65.3:5435"}' \
+  storageCredentials='{"account":"DB_USER","password":"DB_PASSWORD","admin_account":"postgres","admin_password":"mysecretpassword"}' \
+  walletKey=key \
+  poolName=localpool \
+  authorDid=NFP8kaWvCupbDQHQhErwXb \
+  schemaId=10 \
+  schemaName=ian-permit.ian-co \
+  schemaVersion=1.0.0 \
+  python sovrin-write-txns/cred_def.py
+
 ```
 
 Make a note of the `primary` produced by this script, you will need to use it for the `primaryKey` later
