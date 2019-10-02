@@ -63,7 +63,7 @@ wallet_config = json.dumps({"id": wallet_name, "storage_type": wallet_storage_ty
 wallet_credentials = json.dumps({"key": wallet_key, "storage_credentials": wallet_storage_credentials})
 
 author_did = os.getenv('authorDid', 'VePGZfzvcgmT3GTdYgpDiT')
-seq_no = os.getenv('schemaId', 10)
+seq_no = int(os.getenv('schemaId', '10'))
 schema_name = os.getenv('schemaName', 'ian-permit.ian-co')
 schema_version = os.getenv('schemaVersion', '1.0.0')
 schema_attributes = os.getenv('schemaAttributes', "'corp_num','legal_name','permit_id','permit_type','permit_issued_date','permit_status','effective_date'")
